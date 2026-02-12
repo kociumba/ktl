@@ -198,7 +198,7 @@ struct grid {
     // if predicate returns true, calls transform for that cell
     template <typename FuncP, typename FuncT>
     requires std::predicate<FuncP, T&, pos2_size> && std::invocable<FuncT, T&, pos2_size>
-    void traverse(pos2_size start, FuncP predicate, FuncT transform) const {
+    void traverse(pos2_size start, FuncP predicate, FuncT transform) {
         ktl_assert(in_bounds(start) && predicate((*this)[start.y][start.x], start));
         for (size_t y = start.y; y < height; y++) {
             size_t current_x = (y == start.y) ? start.x : 0;
