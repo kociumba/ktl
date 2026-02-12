@@ -203,7 +203,7 @@ struct grid {
         for (size_t y = start.y; y < height; y++) {
             size_t current_x = (y == start.y) ? start.x : 0;
             for (size_t x = current_x; x < width; x++) {
-                if (!predicate((*this)[y][x], pos2_size{x, y})) { return; }
+                if (!predicate((*this)[y][x], pos2_size{x, y})) { continue; }
                 transform((*this)[y][x], pos2_size{x, y});
             }
         }
