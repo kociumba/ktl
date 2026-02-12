@@ -6,9 +6,9 @@ set_policy("run.autobuild", true)
 set_policy("check.auto_map_flags", true)
 set_policy("build.progress_style", "multirow")
 
--- if is_mode("debug") then
+if has_config("test") then
     add_requires("catch2 3.x", {optional = true})
--- end
+end
 
 target("ktl")
     set_kind("headeronly")
@@ -35,7 +35,7 @@ for _, file in ipairs(os.files("examples/*.cpp")) do
         add_defines("PROJECT_ROOT=\"" .. project_root .. "/\"")
 end
 
--- if is_mode("debug") then
+if has_config("test") then
     target("ktl_tests")
         set_kind("binary")
         set_group("tests")
@@ -57,4 +57,4 @@ end
             rundir = os.projectdir(),
             runargs = {"--reporter", "console"}
         })
--- end
+end
