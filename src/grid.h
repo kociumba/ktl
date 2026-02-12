@@ -108,9 +108,9 @@ struct grid {
     bool in_bounds(size_t x, size_t y) const { return x < width && y < height; }
 
     // fills the entire grid with the specified value
-    void fill(T& val) { data.assign(width * height, val); }
+    void fill(const T& val) { data.assign(width * height, val); }
     // fills the specified rectangular area with the specified value
-    void fill(rect r, T& val) {
+    void fill(rect r, const T& val) {
         ktl_assert(in_bounds(r.top_left));
         ktl_assert(in_bounds(r.bottom_right));
         for (size_t y = r.top_left.y; y <= r.bottom_right.y; y++) {
