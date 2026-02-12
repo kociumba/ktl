@@ -162,7 +162,8 @@ struct grid {
 
     // iterates over the moore neighbors of coordinates (x, y), calling func for each neighbor
     template <typename Func>
-    requires std::predicate<Func, T&, pos2_size> void moore_neighbors(size_t x, size_t y, Func func) {
+    requires std::predicate<Func, T&, pos2_size>
+    void moore_neighbors(size_t x, size_t y, Func func) {
         for (int dy = (y > 0 ? -1 : 0); dy <= (y + 1 < height ? 1 : 0); dy++) {
             for (int dx = (x > 0 ? -1 : 0); dx <= (x + 1 < width ? 1 : 0); dx++) {
                 if (dx == 0 && dy == 0) { continue; }
@@ -195,12 +196,14 @@ struct grid {
 
     // traverses the grid starting from position start, calling predicate for each cell
     // if predicate returns true, calls transform for that cell
-    template <typename Func>
-    requires std::predicate<Func, T&, pos2_size>
-    void traverse(pos2_size start, Func predicate, Func transform) {
+    template <typename FuncP, typename FuncT>
+    requires std::predicate<FuncP, const T&, pos2_size> &&
+             std::invocable<FuncT, const T&, pos2_size>
+    void traverse(pos2_size start, FuncP predicate, FuncT transform) const {
         ktl_assert(in_bounds(start) && predicate((*this)[start.y][start.x], start));
         for (size_t y = start.y; y < height; y++) {
-            for (size_t x = start.x; x < width; x++) {
+            size_t current_x = (y == start.y) ? start.x : 0;
+            for (size_t x = current_x; x < width; x++) {
                 if (!predicate((*this)[y][x], pos2_size{x, y})) { return; }
                 transform((*this)[y][x], pos2_size{x, y});
             }
