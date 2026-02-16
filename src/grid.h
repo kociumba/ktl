@@ -9,7 +9,6 @@
 #include <algorithm>
 #include <bit>
 #include <concepts>
-#include <generator>
 #include <memory>
 #include <type_traits>
 #include <utility>
@@ -368,25 +367,59 @@ struct grid {
         pos2_size position;
     };
 
-    auto items() -> std::generator<cell> {
-        for (size_t y = 0; y < height; ++y) {
-            for (size_t x = 0; x < width; ++x) {
-                co_yield cell{data[y * width + x], {x, y}};
-            }
-        }
-    }
-
     struct const_cell {
         const T& value;
         pos2_size position;
     };
 
-    auto items() const -> std::generator<const_cell> {
-        for (size_t y = 0; y < height; ++y) {
-            for (size_t x = 0; x < width; ++x) {
-                co_yield const_cell{data[y * width + x], {x, y}};
+    template <bool IsConst>
+    struct Iterator {
+        using Parent = std::conditional_t<IsConst, const grid, grid>;
+        using CellType = std::conditional_t<IsConst, const_cell, cell>;
+
+        Parent* grid;
+        size_t x, y;
+
+        using iterator_category = std::forward_iterator_tag;
+        using value_type = CellType;
+        using difference_type = std::ptrdiff_t;
+        using pointer = void;
+        using reference = CellType;
+
+        CellType operator*() const { return CellType{grid->data[y * grid->width + x], {x, y}}; }
+
+        Iterator& operator++() {
+            if (++x >= grid->width) {
+                x = 0;
+                ++y;
             }
+            return *this;
         }
+
+        Iterator operator++(int) {
+            Iterator tmp = *this;
+            ++(*this);
+            return tmp;
+        }
+
+        bool operator==(const Iterator& other) const { return x == other.x && y == other.y; }
+
+        bool operator!=(const Iterator& other) const { return !(*this == other); }
+    };
+
+    template <bool IsConst>
+    struct Range {
+        Iterator<IsConst> b, e;
+        Iterator<IsConst> begin() const { return b; }
+        Iterator<IsConst> end() const { return e; }
+    };
+
+    auto items() {
+        return Range<false>{Iterator<false>{this, 0, 0}, Iterator<false>{this, 0, height}};
+    }
+
+    auto items() const {
+        return Range<true>{Iterator<true>{this, 0, 0}, Iterator<true>{this, 0, height}};
     }
 
     bool _check_opts() const { return std::popcount(opts & GRID_GROW_MASK) == 1; }
