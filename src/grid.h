@@ -60,15 +60,15 @@ struct grid {
 
 #if defined(KTL_GRID_SAFE_ACCESS)
     // by default used in debug builds to provide bound checking and safe access to grid cells
-    template <typename T>
+    template <typename U>
     struct row {
-        T* _row;
+        U* _row;
         size_t width;
 
-        operator T*() const { return _row; }
-        row(T* p, size_t w = 0) : _row(p), width(w) {}
+        operator U*() const { return _row; }
+        row(U* p, size_t w = 0) : _row(p), width(w) {}
 
-        T& operator[](size_t x) {
+        U& operator[](size_t x) {
             ktl_assert(x < width);
             return _row[x];
         }
@@ -85,8 +85,8 @@ struct grid {
     }
 #else
     // by default used in release builds, provides direct access to the grid data
-    template <typename T>
-    using row = T*;
+    template <typename U>
+    using row = U*;
 
     T* operator[](size_t y) { return &data[y * width]; }
     const T* operator[](size_t y) const { return &data[y * width]; }
