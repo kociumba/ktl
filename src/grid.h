@@ -49,9 +49,16 @@ struct grid {
     size_t width, height;
     size_t opts;
 
-    // constructs a grid of dimensions width * height, with the specified options and default value for cells
     grid(size_t width, size_t height, T def_val = T{}, size_t opts = GRID_GROW_BOTTOM_RIGHT)
-        : width(width), height(height), opts(opts) {
+        : grid(width, height, Alloc(), def_val, opts) {}
+
+    // constructs a grid of dimensions width * height, with the specified options and default value for cells
+    grid(size_t width,
+        size_t height,
+        const Alloc& alloc,
+        T def_val = T{},
+        size_t opts = GRID_GROW_BOTTOM_RIGHT)
+        : data(alloc), width(width), height(height), opts(opts) {
         bool valid = _check_opts();
         ktl_assert(valid);
         ktl_assert(!mul_overflow_size(width, height, nullptr));
@@ -214,19 +221,24 @@ struct grid {
     template <typename Func>
     requires std::predicate<Func, T&, pos2_size>
     auto _flood_fill_core(pos2_size start, Func predicate, bool orthogonal) {
-        using PosAlloc = typename std::allocator_traits<Alloc>::template rebind_alloc<pos2_size>;
-        using BoolAlloc = typename std::allocator_traits<Alloc>::template rebind_alloc<bool>;
+        auto grid_alloc = data.get_allocator();
 
-        std::vector<pos2_size, PosAlloc> visited_positions;
+        using PosAlloc = typename std::allocator_traits<Alloc>::template rebind_alloc<pos2_size>;
+        PosAlloc pos_alloc(grid_alloc);
+
+        using BoolAlloc = typename std::allocator_traits<Alloc>::template rebind_alloc<bool>;
+        BoolAlloc bool_alloc(grid_alloc);
+
+        std::vector<pos2_size, PosAlloc> visited_positions(pos_alloc);
 
         if (!in_bounds(start) || !predicate((*this)[start.y][start.x], start)) {
             return visited_positions;
         }
 
-        std::vector<bool, BoolAlloc> visited(width * height, false);
+        std::vector<bool, BoolAlloc> visited(width * height, false, bool_alloc);
         auto flat_index = [this](pos2_size p) -> size_t { return p.y * width + p.x; };
 
-        std::vector<pos2_size, PosAlloc> stack;
+        std::vector<pos2_size, PosAlloc> stack(pos_alloc);
         size_t start_idx = flat_index(start);
         visited[start_idx] = true;
         visited_positions.push_back(start);
@@ -323,7 +335,7 @@ struct grid {
             return;
         }
 
-        std::vector<T, Alloc> new_data(new_width * new_height, def_val);
+        std::vector<T, Alloc> new_data(new_width * new_height, def_val, data.get_allocator());
 
         size_t x_offset = 0;
         size_t y_offset = 0;
