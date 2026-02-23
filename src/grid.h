@@ -49,6 +49,8 @@ struct grid {
     size_t width, height;
     size_t opts;
 
+    grid() noexcept : data{}, width(0), height(0), opts(GRID_GROW_BOTTOM_RIGHT) {}
+
     grid(size_t width, size_t height, T def_val = T{}, size_t opts = GRID_GROW_BOTTOM_RIGHT)
         : grid(width, height, Alloc(), def_val, opts) {}
 
