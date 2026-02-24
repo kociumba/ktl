@@ -15,7 +15,8 @@
 #endif
 
 #if defined(__GNUC__) || defined(__clang__)
-#define KTL_NO_SANITIZE __attribute__((no_sanitize("integer", "undefined")))
+#define KTL_NO_SANITIZE \
+    __attribute__((no_sanitize("integer", "undefined", "unsigned-integer-overflow")))
 #else
 #define KTL_NO_SANITIZE
 #endif
