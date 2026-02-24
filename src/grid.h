@@ -328,6 +328,8 @@ struct grid {
 
     void clear() { data.clear(); }
 
+    void ensure_backing() { data.reserve(width * height); }
+
     // resizes the grid to new dimensions, optionally specifying a default value for new cells
     void resize(size_t new_width, size_t new_height, T def_val = T{}) {
         if (new_width == width && new_height == height) { return; }
