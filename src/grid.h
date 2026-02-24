@@ -326,6 +326,8 @@ struct grid {
     // resets the grid to the default value, optionally specifying a default value
     void reset(T def_val = T{}) { data.assign(width * height, def_val); }
 
+    void clear() { data.clear(); }
+
     // resizes the grid to new dimensions, optionally specifying a default value for new cells
     void resize(size_t new_width, size_t new_height, T def_val = T{}) {
         if (new_width == width && new_height == height) { return; }
