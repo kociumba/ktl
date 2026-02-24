@@ -14,6 +14,12 @@
 #define KTL_HAS_BUILTIN_OVERFLOW 0
 #endif
 
+#if defined(__GNUC__) || defined(__clang__)
+#define KTL_NO_SANITIZE __attribute__((no_sanitize("integer", "undefined")))
+#else
+#define KTL_NO_SANITIZE
+#endif
+
 #define ktl_mul_overflow(a, b, result)       \
     _Generic((result),                       \
         uint64_t*: ktl_ns::mul_overflow_u64, \
@@ -22,7 +28,7 @@
 
 namespace ktl_ns {
 
-inline bool mul_overflow_u64(uint64_t a, uint64_t b, uint64_t* result) {
+KTL_NO_SANITIZE inline bool mul_overflow_u64(uint64_t a, uint64_t b, uint64_t* result) {
 #if KTL_HAS_BUILTIN_OVERFLOW
     return __builtin_mul_overflow(a, b, result);
 #else
@@ -33,7 +39,7 @@ inline bool mul_overflow_u64(uint64_t a, uint64_t b, uint64_t* result) {
 #endif
 }
 
-inline bool mul_overflow_i64(int64_t a, int64_t b, int64_t* result) {
+KTL_NO_SANITIZE inline bool mul_overflow_i64(int64_t a, int64_t b, int64_t* result) {
 #if KTL_HAS_BUILTIN_OVERFLOW
     return __builtin_mul_overflow(a, b, result);
 #else
@@ -47,7 +53,7 @@ inline bool mul_overflow_i64(int64_t a, int64_t b, int64_t* result) {
 #endif
 }
 
-inline bool mul_overflow_size(size_t a, size_t b, size_t* result) {
+KTL_NO_SANITIZE inline bool mul_overflow_size(size_t a, size_t b, size_t* result) {
 #if KTL_HAS_BUILTIN_OVERFLOW
     return __builtin_mul_overflow(a, b, result);
 #else
