@@ -136,7 +136,8 @@ inline Region* new_region(size_t capacity) {
     size_t size = sizeof(Region) + sizeof(uintptr_t) * capacity;
     auto r =
         (Region*)mmap(nullptr, size, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
-    ktl_arena_assert(r != (void*)MAP_FAILED);
+    bool success = (r != MAP_FAILED);
+    ktl_arena_assert(success);
 
     r->next = nullptr;
     r->count = 0;
