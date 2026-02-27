@@ -1,5 +1,5 @@
-#ifndef RESULT_H
-#define RESULT_H
+#ifndef KTL_RESULT_H
+#define KTL_RESULT_H
 
 #include "common.h"
 
@@ -98,6 +98,11 @@ struct _error {
     }
 };
 
+template <typename ERR>
+error_t<std::decay_t<ERR>> err(ERR&& err) ktl_noexcept_ctor_mv(ERR) {
+    return {std::forward<ERR>(err)};
+}
+
 template <typename VAL, typename ERR>
     requires std::is_default_constructible_v<VAL> && (!std::is_convertible_v<VAL, error_t<ERR>>)
 struct [[nodiscard]] result {
@@ -116,43 +121,55 @@ struct [[nodiscard]] result {
         : val(std::move(v)), err(std::move(e)) {}
 
     explicit operator bool() const noexcept { return !err; }
-};
 
-template <typename ERR>
-error_t<std::decay_t<ERR>> err(ERR&& err) ktl_noexcept_ctor_mv(ERR) {
-    return {std::forward<ERR>(err)};
-}
+#if defined(KTL_RESULT_FUNCTIONAL_EXTENSIONS)
+    template <typename F>
+    auto map(F&& f) && -> result<std::invoke_result_t<F, VAL>, ERR> {
+        if (!err) return std::forward<F>(f)(std::move(val));
+        else return ktl_ns::err(std::move(*err));
+    }
+
+    template <typename F>
+    auto and_then(F&& f) && -> std::invoke_result_t<F, VAL> {
+        if (!err) return std::forward<F>(f)(std::move(val));
+        else return ktl_ns::err(std::move(*err));
+    }
+
+    template <typename F>
+    auto or_else(F&& f) && -> std::invoke_result_t<F, ERR> {
+        if (err) return std::forward<F>(f)(std::move(*err));
+        else return std::move(val);
+    }
+
+    VAL value_or(VAL&& fallback) && {
+        if (!err) return std::move(val);
+        else return std::forward<VAL>(fallback);
+    }
+#endif
+};
 
 template <std::size_t I, typename VAL, typename ERR>
 constexpr decltype(auto) get(ktl_ns::result<VAL, ERR>& r) noexcept {
-    if constexpr (I == 0)
-        return (r.val);
-    else
-        return (r.err);
+    if constexpr (I == 0) return (r.val);
+    else return (r.err);
 }
 
 template <std::size_t I, typename VAL, typename ERR>
 constexpr decltype(auto) get(const ktl_ns::result<VAL, ERR>& r) noexcept {
-    if constexpr (I == 0)
-        return (r.val);
-    else
-        return (r.err);
+    if constexpr (I == 0) return (r.val);
+    else return (r.err);
 }
 
 template <std::size_t I, typename VAL, typename ERR>
 constexpr decltype(auto) get(ktl_ns::result<VAL, ERR>&& r) noexcept {
-    if constexpr (I == 0)
-        return std::move(r.val);
-    else
-        return std::move(r.err);
+    if constexpr (I == 0) return std::move(r.val);
+    else return std::move(r.err);
 }
 
 template <std::size_t I, typename VAL, typename ERR>
 constexpr decltype(auto) get(const ktl_ns::result<VAL, ERR>&& r) noexcept {
-    if constexpr (I == 0)
-        return std::move(r.val);
-    else
-        return std::move(r.err);
+    if constexpr (I == 0) return std::move(r.val);
+    else return std::move(r.err);
 }
 
 }  // namespace ktl_ns
@@ -177,4 +194,4 @@ struct tuple_element<1, ktl_ns::result<VAL, ERR>> {
 
 }  // namespace std
 
-#endif /* RESULT_H */
+#endif /* KTL_RESULT_H */

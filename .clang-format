@@ -13,7 +13,7 @@ BinPackArguments: false
 BinPackParameters: OnePerLine
 # AlignAfterOpenBracket: Align
 AlignAfterOpenBracket: DontAlign
-AllowShortIfStatementsOnASingleLine: WithoutElse
+AllowShortIfStatementsOnASingleLine: AllIfsAndElse
 AllowShortFunctionsOnASingleLine: All
 AllowShortBlocksOnASingleLine: Always
 AllowShortEnumsOnASingleLine: true
