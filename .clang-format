@@ -18,4 +18,4 @@ AllowShortFunctionsOnASingleLine: All
 AllowShortBlocksOnASingleLine: Always
 AllowShortEnumsOnASingleLine: true
 BreakAfterReturnType: None
-RequiresClausePosition: SingleLine
+RequiresClausePosition: OwnLine

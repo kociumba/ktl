@@ -6,9 +6,7 @@ set_policy("run.autobuild", true)
 set_policy("check.auto_map_flags", true)
 set_policy("build.progress_style", "multirow")
 
-if has_config("test") then
-    add_requires("catch2 3.x", {optional = true})
-end
+add_requires("catch2 3.x", {optional = true})
 
 target("ktl")
     set_kind("headeronly")
@@ -35,26 +33,24 @@ for _, file in ipairs(os.files("examples/*.cpp")) do
         add_defines("PROJECT_ROOT=\"" .. project_root .. "/\"")
 end
 
-if has_config("test") then
-    target("ktl_tests")
-        set_kind("binary")
-        set_group("tests")
-        set_default(true)
-        add_files("tests/*.cpp")
-        add_headerfiles("tests/**.h")
-        add_deps("ktl")
-        add_packages("catch2")
+target("ktl_tests")
+    set_kind("binary")
+    set_group("tests")
+    set_default(false)
+    add_files("tests/*.cpp")
+    add_headerfiles("tests/**.h")
+    add_deps("ktl")
+    add_packages("catch2")
 
-        set_warnings("all", "extra")
+    set_warnings("all", "extra")
 
-        add_cxflags("/permissive-", "/analyze", "/GS")
+    add_cxflags("/permissive-", "/analyze", "/GS")
 
-        local project_root = os.projectdir():gsub("\\", "/")
-        add_defines("PROJECT_ROOT=\"" .. project_root .. "/\"")
+    local project_root = os.projectdir():gsub("\\", "/")
+    add_defines("PROJECT_ROOT=\"" .. project_root .. "/\"")
 
-        -- Register as test runner
-        add_tests("default", {
-            rundir = os.projectdir(),
-            runargs = {"--reporter", "console"}
-        })
-end
+    -- Register as test runner
+    add_tests("default", {
+        rundir = os.projectdir(),
+        runargs = {"--reporter", "console"}
+    })
