@@ -1,5 +1,5 @@
 // this header implements a compile time optimized lookup table
-// 
+//
 // lookup_table aims to replicate the speed and utility of array[CONSTANT] from c
 // but for any key type c++ can support
 //
@@ -21,12 +21,9 @@
 namespace ktl_ns {
 
 // lookup_table is a compile time optimized lookup table that can be used as a constexpr map
-template <typename Key,
-    typename Val,
-    size_t N,
-    class Alloc = std::allocator<std::pair<const Key, Val>>>
+template <typename Key, typename Val, size_t N, class Alloc = std::allocator<std::pair<Key, Val>>>
 struct lookup_table {
-    std::array<std::pair<const Key, Val>, N> comptime_data;
+    std::array<std::pair<Key, Val>, N> comptime_data;
     std::unordered_map<Key, Val, std::hash<Key>, std::equal_to<Key>, Alloc> runtime_map;
 
     // constructs a lookup_table from a comp time array
@@ -89,7 +86,7 @@ struct lookup_table {
 
     // inserts a value into the lookup_table, only supports runtime keys and values
     void insert(Key key, Val val) { runtime_map.emplace(std::move(key), std::move(val)); }
-    
+
     // removes a value from the lookup_table, only supports runtime keys
     void remove(const Key& key) { runtime_map.erase(key); }
 
