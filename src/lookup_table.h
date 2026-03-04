@@ -21,7 +21,7 @@
 namespace ktl_ns {
 
 // lookup_table is a compile time optimized lookup table that can be used as a constexpr map
-template <typename Key, typename Val, size_t N, class Alloc = std::allocator<std::pair<Key, Val>>>
+template <typename Key, typename Val, size_t N, class Alloc = std::allocator<std::pair<const Key, Val>>>
 struct lookup_table {
     std::array<std::pair<Key, Val>, N> comptime_data;
     std::unordered_map<Key, Val, std::hash<Key>, std::equal_to<Key>, Alloc> runtime_map;
