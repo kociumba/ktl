@@ -19,7 +19,7 @@ struct _once_tag {};
 
 template <auto Id, std::invocable Func>
 inline void _once(_once_tag<Id>, Func&& f) {
-    [[no_unique_address]] static bool done = false;
+    static bool done = false;
     if (!done) {
         done = true;
         std::forward<Func>(f)();
@@ -28,7 +28,7 @@ inline void _once(_once_tag<Id>, Func&& f) {
 
 template <auto Id, std::invocable Func>
 inline void _once_safe(_once_tag<Id>, Func&& f) {
-    [[no_unique_address]] static std::atomic_flag done = ATOMIC_FLAG_INIT;
+    static std::atomic_flag done = ATOMIC_FLAG_INIT;
     if (!done.test_and_set(std::memory_order_relaxed)) { std::forward<Func>(f)(); }
 }
 
