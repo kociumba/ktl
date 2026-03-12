@@ -1,5 +1,5 @@
-#ifndef KTL_INTRINSICS_H
-#define KTL_INTRINSICS_H
+#ifndef INTRINSICS_H
+#define INTRINSICS_H
 
 #include "common.h"
 
@@ -67,4 +67,4 @@ KTL_NO_SANITIZE inline bool mul_overflow_size(size_t a, size_t b, size_t* result
 
 }  // namespace ktl_ns
 
-#endif /* KTL_INTRINSICS_H */
+#endif /* INTRINSICS_H */
